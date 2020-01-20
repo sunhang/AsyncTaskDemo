@@ -25,6 +25,8 @@ allprojects {
 }
 
 ext.anko_version='0.10.8'
+ext.lifecycle_version = "2.1.0"
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir
