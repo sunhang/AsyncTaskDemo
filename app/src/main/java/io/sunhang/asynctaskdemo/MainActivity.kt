@@ -1,50 +1,43 @@
 package io.sunhang.asynctaskdemo
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import io.sunhang.asynctaskdemo.coroutines.CoroutineViewModel
+import io.sunhang.asynctaskdemo.coroutines.IView
+import io.sunhang.asynctaskdemo.coroutines.Presenter
 import io.sunhang.asynctaskdemo.model.Goods
-import kotlinx.coroutines.*
 import org.jetbrains.anko.*
 
 
-class MainActivity : AppCompatActivity() {
-    private val supervisorJob = SupervisorJob()
-    private val uiScope = CoroutineScope(Dispatchers.Main + supervisorJob)
-
+class MainActivity : AppCompatActivity(), IView {
+    private val presenter = Presenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ActivityUI().setContentView(this)
 
-        val model = ViewModelProviders.of(this).get(CoroutineViewModel::class.java)
-        model.requestServer()
+        presenter.view = this
+        presenter.requestServer()
+    }
 
-        uiScope.launch {
-            displayGoods(ActivityUI.ID_LAYOUT_0, model.goodsA.await())
-        }
-        uiScope.launch {
-            displayGoods(ActivityUI.ID_LAYOUT_1, model.goodsB.await())
-        }
-        uiScope.launch {
-            val layoutId = ActivityUI.ID_LAYOUT_2
-            val betterGoods = model.betterGoods.await()
-            textView(layoutId).text = "choose: \n$betterGoods"
-            progressBar(layoutId).visibility = View.INVISIBLE
-        }
+    override fun displayGoodsA(goods: Goods) {
+        displayGoods(ActivityUI.ID_LAYOUT_0, goods)
+    }
+
+    override fun displayGoodsB(goods: Goods) {
+        displayGoods(ActivityUI.ID_LAYOUT_1, goods)
+    }
+
+    override fun displayBetterGoods(goods: Goods) {
+        displayGoods(ActivityUI.ID_LAYOUT_2, goods)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        uiScope.cancel()
+        presenter.cancel()
     }
 
     private fun displayGoods(layoutId: Int, goods: Goods) {
@@ -60,8 +53,10 @@ class MainActivity : AppCompatActivity() {
         return findOptional<ViewGroup>(layoutId)!!.findOptional<ProgressBar>(ActivityUI.ID_PROGRESS)!!
     }
 
+
     class ActivityUI : AnkoComponent<MainActivity> {
         companion object {
+            val ID_TITLE = View.generateViewId()
             val ID_TEXT_VIEW = View.generateViewId()
             val ID_PROGRESS = View.generateViewId()
 
@@ -70,38 +65,66 @@ class MainActivity : AppCompatActivity() {
             val ID_LAYOUT_2 = View.generateViewId()
         }
 
-
         override fun createView(ui: AnkoContext<MainActivity>) = ui.apply {
-            fun _LinearLayout.panel(setup: _FrameLayout.() -> Unit) = run {
-                frameLayout {
-                    setup()
+
+            verticalLayout {
+                panel {
+                    id = ID_LAYOUT_0
+                    title = "Goods from Shop A:"
+                }
+
+                panel {
+                    id = ID_LAYOUT_1
+                    title = "Goods from Shop B:"
+                }
+
+                panel {
+                    id = ID_LAYOUT_2
+                    title = "Choose better goods:"
+                }
+            }
+        }.view
+
+        class Config {
+            var id: Int = 0
+            lateinit var title: String
+        }
+
+        fun _LinearLayout.panel(init: Config.() -> Unit) = run {
+            val config = Config().apply { init() }
+
+            relativeLayout {
+                id = config.id
+
+                val vl = verticalLayout {
+                    id = View.generateViewId()
+
+                    textView {
+                        id = ID_TITLE
+                        textSize = 23f
+                        text = config.title
+                    }
 
                     textView {
                         id = ID_TEXT_VIEW
                         textSize = 20f
-                    }.lparams(wrapContent, wrapContent) {
-                        gravity = Gravity.CENTER
                     }
-
-                    progressBar {
-                        id = ID_PROGRESS
-                    }.lparams(wrapContent, wrapContent) {
-                        gravity = Gravity.CENTER
-                    }
+                }.lparams(matchParent, wrapContent) {
+                    leftMargin = context.dp2Px(20)
+                    centerInParent()
                 }
-            }
 
-            verticalLayout {
-                listOf(ID_LAYOUT_0, ID_LAYOUT_1, ID_LAYOUT_2).forEach {
-                    panel {
-                        id = it
-                    }.lparams(matchParent, matchParent) {
-                        weight = 1.0f
-                    }
+
+                progressBar {
+                    id = ID_PROGRESS
+                }.lparams(wrapContent, wrapContent) {
+                    centerInParent()
+                    below(vl)
                 }
+            }.lparams(matchParent, matchParent) {
+                weight = 1.0f
             }
+        }
 
-        }.view
     }
-
 }

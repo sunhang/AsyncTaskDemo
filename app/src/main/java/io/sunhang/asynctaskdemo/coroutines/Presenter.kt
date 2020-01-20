@@ -1,31 +1,40 @@
 package io.sunhang.asynctaskdemo.coroutines
 
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import io.sunhang.asynctaskdemo.model.Goods
-import io.sunhang.asynctaskdemo.repository.Server
 import kotlinx.coroutines.*
 import java.util.*
 
-class CoroutineViewModel : ViewModel() {
-    lateinit var goodsA: Deferred<Goods>
-    lateinit var goodsB: Deferred<Goods>
-    lateinit var betterGoods: Deferred<Goods>
+class Presenter {
+    lateinit var view: IView
+    private val supervisorJob = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + supervisorJob)
 
     private val server = Server()
 
-    fun requestServer() = viewModelScope.launch {
-        goodsA = async(Dispatchers.IO) {
-            server.getGoodsFromShopA()
-        }
-        goodsB= async(Dispatchers.IO) {
-            server.getGoodsFromShopB()
+    fun requestServer() = uiScope.launch {
+        val goodsA = server.getGoodsFromShopA()
+        val goodsB = server.getGoodsFromShopB()
+
+
+        launch {
+            view.displayGoodsA(goodsA.await())
         }
 
-        betterGoods = async(newSingleThreadContext("foo")) {
+        launch {
+            view.displayGoodsB(goodsB.await())
+        }
+
+
+        val betterGoods = withContext(supervisorJob + newSingleThreadContext("foo")) {
             selectBetterOne(goodsA.await(), goodsB.await())
         }
+
+        view.displayBetterGoods(betterGoods)
+    }
+
+    fun cancel() {
+        supervisorJob.cancel()
     }
 
     @WorkerThread
