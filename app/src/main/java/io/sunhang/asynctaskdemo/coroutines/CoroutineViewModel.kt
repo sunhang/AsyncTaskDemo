@@ -1,7 +1,6 @@
 package io.sunhang.asynctaskdemo.coroutines
 
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.sunhang.asynctaskdemo.model.Goods
@@ -10,37 +9,23 @@ import kotlinx.coroutines.*
 import java.util.*
 
 class CoroutineViewModel : ViewModel() {
-    val goodsA = MutableLiveData<Goods>()
-    val goodsB = MutableLiveData<Goods>()
-    val betterGoods = MutableLiveData<Goods>()
+    lateinit var goodsA: Deferred<Goods>
+    lateinit var goodsB: Deferred<Goods>
+    lateinit var betterGoods: Deferred<Goods>
 
     private val server = Server()
 
     fun requestServer() = viewModelScope.launch {
-        val deferredGoodsA = async(Dispatchers.IO) {
+        goodsA = async(Dispatchers.IO) {
             server.getGoodsFromShopA()
         }
-        val deferredGoodsB = async(Dispatchers.IO) {
+        goodsB= async(Dispatchers.IO) {
             server.getGoodsFromShopB()
         }
 
-        val notifyGoodsToUI = { deferredGoods: Deferred<Goods>, liveDataGoods: MutableLiveData<Goods> ->
-            deferredGoods.run {
-                invokeOnCompletion {
-                    if (isCompleted) {
-                        liveDataGoods.postValue(getCompleted())
-                    }
-                }
-            }
+        betterGoods = async(newSingleThreadContext("foo")) {
+            selectBetterOne(goodsA.await(), goodsB.await())
         }
-
-        notifyGoodsToUI(deferredGoodsA, goodsA)
-        notifyGoodsToUI(deferredGoodsB, goodsB)
-
-        val deferredBetterGoods = async(newSingleThreadContext("foo")) {
-            selectBetterOne(deferredGoodsA.await(), deferredGoodsB.await())
-        }
-        notifyGoodsToUI.invoke(deferredBetterGoods, betterGoods)
     }
 
     @WorkerThread

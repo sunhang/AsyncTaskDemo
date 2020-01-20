@@ -11,10 +11,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import io.sunhang.asynctaskdemo.coroutines.CoroutineViewModel
+import io.sunhang.asynctaskdemo.model.Goods
+import kotlinx.coroutines.*
 import org.jetbrains.anko.*
 
 
 class MainActivity : AppCompatActivity() {
+    private val supervisorJob = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + supervisorJob)
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ActivityUI().setContentView(this)
@@ -22,28 +28,28 @@ class MainActivity : AppCompatActivity() {
         val model = ViewModelProviders.of(this).get(CoroutineViewModel::class.java)
         model.requestServer()
 
-        model.goodsA.observe(this, Observer {
-            val (textView, progressBar) = views(ActivityUI.ID_LAYOUT_0)
-
-            textView.text = it.toString()
-            progressBar.visibility= View.INVISIBLE
-        })
-        model.goodsB.observe(this, Observer {
-            val (textView, progressBar) = views(ActivityUI.ID_LAYOUT_1)
-
-            textView.text = it.toString()
-            progressBar.visibility= View.INVISIBLE
-        })
-        model.betterGoods.observe(this, Observer {
-            val (textView, progressBar) = views(ActivityUI.ID_LAYOUT_2)
-
-            textView.text = "Choose:\n$it"
-            progressBar.visibility= View.INVISIBLE
-        })
+        uiScope.launch {
+            displayGoods(ActivityUI.ID_LAYOUT_0, model.goodsA.await())
+        }
+        uiScope.launch {
+            displayGoods(ActivityUI.ID_LAYOUT_1, model.goodsB.await())
+        }
+        uiScope.launch {
+            val layoutId = ActivityUI.ID_LAYOUT_2
+            val betterGoods = model.betterGoods.await()
+            textView(layoutId).text = "choose: \n$betterGoods"
+            progressBar(layoutId).visibility = View.INVISIBLE
+        }
     }
 
-    private fun views(layoutId: Int): Pair<TextView, ProgressBar> {
-        return Pair<TextView, ProgressBar>(textView(layoutId), progressBar(layoutId))
+    override fun onDestroy() {
+        super.onDestroy()
+        uiScope.cancel()
+    }
+
+    private fun displayGoods(layoutId: Int, goods: Goods) {
+        textView(layoutId).text = goods.toString()
+        progressBar(layoutId).visibility = View.INVISIBLE
     }
 
     private fun textView(layoutId: Int): TextView {
@@ -89,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                 listOf(ID_LAYOUT_0, ID_LAYOUT_1, ID_LAYOUT_2).forEach {
                     panel {
                         id = it
-                    }.lparams(matchParent, wrapContent) {
+                    }.lparams(matchParent, matchParent) {
                         weight = 1.0f
                     }
                 }

@@ -8,6 +8,6 @@ data class Goods(
     @FloatRange(from = 0.0, to = 100.0) val quality: Float // 质量
 ) {
     override fun toString(): String {
-        return "$name price:$price quality:$quality"
+        return "$name >> price:$price quality:$quality"
     }
 }
