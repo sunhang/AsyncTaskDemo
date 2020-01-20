@@ -1,86 +1,64 @@
 package io.sunhang.asynctaskdemo
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.material.appbar.AppBarLayout
 import io.sunhang.asynctaskdemo.coroutines.CoroutineViewModel
 import org.jetbrains.anko.*
-import org.jetbrains.anko.design.appBarLayout
-import org.jetbrains.anko.design.coordinatorLayout
-import org.jetbrains.anko.design.tabLayout
-import org.jetbrains.anko.support.v4.viewPager
 
 
 class MainActivity : AppCompatActivity() {
-    companion object {
-        val ID_TOOLBAR = View.generateViewId()
-        val ID_VIEW_PAGER = View.generateViewId()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ActivityUI().setContentView(this)
-
-        val toolbar = findOptional<Toolbar>(ID_TOOLBAR)
-        setSupportActionBar(toolbar)
 
         val model = ViewModelProviders.of(this).get(CoroutineViewModel::class.java)
         model.requestServer()
     }
 
-    inner class ActivityUI : AnkoComponent<MainActivity> {
+    class ActivityUI : AnkoComponent<MainActivity> {
+        companion object {
+            val ID_TEXT_VIEW = View.generateViewId()
+            val ID_PROGRESS = View.generateViewId()
+
+            val ID_LAYOUT_0 = View.generateViewId()
+            val ID_LAYOUT_1 = View.generateViewId()
+            val ID_LAYOUT_2 = View.generateViewId()
+        }
+
 
         override fun createView(ui: AnkoContext<MainActivity>) = ui.apply {
-            coordinatorLayout {
-                val viewPager = viewPager {
-                    id = ID_VIEW_PAGER
-                    adapter = MainPagerAdapter(supportFragmentManager)
-                }.lparams(matchParent, matchParent) {
-                    behavior = AppBarLayout.ScrollingViewBehavior()
-                }
+            fun panel(setup: _FrameLayout.() -> Unit) =
+                frameLayout {
+                    setup()
 
-                appBarLayout {
-                    lparams(matchParent, wrapContent)
-
-                    toolbar {
-                        id = ID_TOOLBAR
-                        popupTheme = R.style.Base_ThemeOverlay_AppCompat_Light
-                        title = "异步Demo"
-                    }.lparams(matchParent, context.dp2Px(56)) {
-                        scrollFlags = (AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                                or AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS)
+                    textView {
+                        id = ID_TEXT_VIEW
+                        textSize = 20f
+                    }.lparams(wrapContent, wrapContent) {
+                        gravity = Gravity.CENTER
                     }
 
-                    tabLayout {
-                        setupWithViewPager(viewPager)
-                        lparams(matchParent, context.dp2Px(48))
+                    progressBar {
+                        id = ID_PROGRESS
+                    }.lparams(wrapContent, wrapContent) {
+                        gravity = Gravity.CENTER
                     }
                 }
 
+            verticalLayout {
+                listOf(ID_LAYOUT_0, ID_LAYOUT_1, ID_LAYOUT_2).forEach {
+                    panel {
+                        id = it
+                    }.lparams(matchParent, wrapContent) {
+                        weight = 1.0f
+                    }
+                }
             }
+
         }.view
-    }
-
-    class MainPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
-        override fun getItem(position: Int): Fragment {
-            return MainListFragment()
-        }
-
-        override fun getPageTitle(position: Int) = when(position) {
-            0 -> "所有课程"
-            1 -> "推荐"
-            2 -> "我的信息"
-            else -> null
-        }
-
-        override fun getCount() = 3
-
     }
 
 }
