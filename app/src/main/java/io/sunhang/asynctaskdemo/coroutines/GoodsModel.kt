@@ -25,8 +25,12 @@ class GoodsModel {
     /**
      * 比较出更好的桌子
      */
-    suspend fun selectBetterOneAsync(supervisorJob: Job, ikeaGoods: Goods, carrefourGoods: Goods): Goods {
-        return withContext(supervisorJob + newSingleThreadContext("foo")) {
+    fun selectBetterOneAsync(
+        supervisorJob: Job,
+        ikeaGoods: Goods,
+        carrefourGoods: Goods
+    ): Deferred<Goods> {
+        return CoroutineScope(supervisorJob + newSingleThreadContext("foo")).async {
             server.selectBetterOne(ikeaGoods, carrefourGoods)
         }
     }

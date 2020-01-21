@@ -36,8 +36,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
 
             view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
 
-            val betterGoods =
-                goodsModel.selectBetterOneAsync(supervisorJob, ikeaGoods, carrefourGoods)
+            val betterGoods = goodsModel.selectBetterOneAsync(supervisorJob, ikeaGoods, carrefourGoods).await()
             view.displayBetterGoods(Resource(Resource.FINISH, betterGoods))
         }
     }
