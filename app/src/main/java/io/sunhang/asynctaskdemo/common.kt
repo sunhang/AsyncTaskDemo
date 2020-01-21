@@ -1,6 +1,7 @@
 package io.sunhang.asynctaskdemo
 
 import android.content.Context
+import io.sunhang.asynctaskdemo.model.Resource
 import kotlin.math.roundToInt
 
 fun Context.dp2Px(dp: Float) = (resources.displayMetrics.density * dp).roundToInt()

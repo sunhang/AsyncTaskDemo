@@ -2,6 +2,8 @@ package io.sunhang.asynctaskdemo.coroutines
 
 import androidx.annotation.WorkerThread
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter
+import com.hannesdorfmann.mosby3.mvp.MvpView
+import io.sunhang.asynctaskdemo.GoodsView
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
 import kotlinx.coroutines.*
@@ -12,6 +14,12 @@ class GoodsPresenter : MvpBasePresenter<GoodsView>() {
     private val uiScope = CoroutineScope(Dispatchers.Main + supervisorJob)
 
     private val server = GoodsModel()
+
+/*    private fun displayUI(viewFunc: (Resource) -> Unit, resource: Resource) {
+        ifViewAttached {
+            viewFunc.invoke(resource)
+        }
+    }*/
 
     fun requestServer() = uiScope.launch {
         val deferredIKEAGoods = server.getGoodsFromIKEAAsync()
@@ -40,16 +48,19 @@ class GoodsPresenter : MvpBasePresenter<GoodsView>() {
         val carrefourGoods = deferredCarrefourGoods.await()
 
         ifViewAttached {
-            it.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
+            it.displayBetterGoods(
+                Resource(
+                    Resource.LOADING,
+                    "start compare which one is better"
+                )
+            )
         }
 
         val betterGoods = withContext(supervisorJob + newSingleThreadContext("foo")) {
             selectBetterOne(ikeaGoods, carrefourGoods)
         }
 
-        ifViewAttached {
-            it.displayBetterGoods(Resource(Resource.FINISH, betterGoods))
-        }
+        ifViewAttached { it.displayBetterGoods(Resource(Resource.FINISH, betterGoods)) }
     }
 
     fun cancel() {

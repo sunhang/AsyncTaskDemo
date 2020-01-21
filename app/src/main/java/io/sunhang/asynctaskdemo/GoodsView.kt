@@ -1,4 +1,4 @@
-package io.sunhang.asynctaskdemo.coroutines
+package io.sunhang.asynctaskdemo
 
 import com.hannesdorfmann.mosby3.mvp.MvpView
 import io.sunhang.asynctaskdemo.model.Resource

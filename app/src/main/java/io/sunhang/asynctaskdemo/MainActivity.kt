@@ -8,14 +8,14 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.hannesdorfmann.mosby3.mvp.MvpActivity
-import io.sunhang.asynctaskdemo.coroutines.GoodsView
 import io.sunhang.asynctaskdemo.coroutines.GoodsPresenter
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
 import org.jetbrains.anko.*
 
 
-class MainActivity : MvpActivity<GoodsView, GoodsPresenter>(), GoodsView {
+class MainActivity : MvpActivity<GoodsView, GoodsPresenter>(),
+    GoodsView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
