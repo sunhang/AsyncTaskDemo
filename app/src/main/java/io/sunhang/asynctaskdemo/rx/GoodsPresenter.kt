@@ -1,9 +1,11 @@
 package io.sunhang.asynctaskdemo.rx
 
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
+import io.reactivex.plugins.RxJavaPlugins
 import io.sunhang.asynctaskdemo.BaseGoodsPresenter
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
@@ -12,6 +14,15 @@ import io.sunhang.asynctaskdemo.plusAssign
 class GoodsPresenter : BaseGoodsPresenter() {
     private val goodsModel = GoodsModel()
     private val compositeDisposable = CompositeDisposable()
+
+    init {
+        RxJavaPlugins.setErrorHandler { e: Throwable? ->
+            if (e is InterruptedException) { // fine, some blocking code was interrupted by a dispose call
+                e.printStackTrace()
+                return@setErrorHandler
+            }
+        }
+    }
 
     override fun requestServer() {
         view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
