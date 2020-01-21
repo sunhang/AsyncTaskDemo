@@ -17,8 +17,8 @@ class GoodsPresenter : MvpBasePresenter<GoodsView>() {
         val deferredIKEAGoods = server.getGoodsFromIKEAAsync()
         val deferredCarrefourGoods = server.getGoodsFromCarrefourAsync()
 
-        view.displayIKEAGoods(Resource(Resource.START, "start request IKEA goods"))
-        view.displayCarrefourGoods(Resource(Resource.START, "start request carrefour goods"))
+        view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
+        view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
 
         launch {
             val goods = deferredIKEAGoods.await()
@@ -34,13 +34,13 @@ class GoodsPresenter : MvpBasePresenter<GoodsView>() {
             }
         }
 
-        view.displayBetterGoods(Resource(Resource.START, "wait..."))
+        view.displayBetterGoods(Resource(Resource.LOADING, "wait..."))
 
         val ikeaGoods = deferredIKEAGoods.await()
         val carrefourGoods = deferredCarrefourGoods.await()
 
         ifViewAttached {
-            it.displayBetterGoods(Resource(Resource.START, "start compare which one is better"))
+            it.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
         }
 
         val betterGoods = withContext(supervisorJob + newSingleThreadContext("foo")) {

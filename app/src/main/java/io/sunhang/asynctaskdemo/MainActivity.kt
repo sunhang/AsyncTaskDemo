@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.view.marginTop
 import com.hannesdorfmann.mosby3.mvp.MvpActivity
 import io.sunhang.asynctaskdemo.coroutines.GoodsView
 import io.sunhang.asynctaskdemo.coroutines.GoodsPresenter
@@ -48,7 +47,7 @@ class MainActivity : MvpActivity<GoodsView, GoodsPresenter>(), GoodsView {
 
     private fun displayGoods(layoutId: Int, resource: Resource) {
         textView(layoutId).text = when (resource.status) {
-            Resource.START -> resource.any as String
+            Resource.LOADING -> resource.any as String
             Resource.FINISH -> (resource.any as Goods).toString()
             else -> ""
         }
