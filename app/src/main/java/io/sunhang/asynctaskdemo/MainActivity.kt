@@ -3,6 +3,7 @@ package io.sunhang.asynctaskdemo
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
@@ -53,7 +54,7 @@ class MainActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
         }
 
         if (resource.status == Resource.FINISH) {
-            progressBar(layoutId).visibility = View.INVISIBLE
+            progressBar(layoutId).visibility = View.GONE
             findOptional<ViewGroup>(layoutId)!!.background = ColorDrawable(Color.YELLOW)
         }
     }
@@ -106,11 +107,18 @@ class MainActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
         fun _LinearLayout.panel(init: Config.() -> Unit) = run {
             val config = Config().apply { init() }
 
-            relativeLayout {
+            verticalLayout {
                 id = config.id
 
-                val vl = verticalLayout {
-                    id = View.generateViewId()
+                leftPadding = context.dp2Px(20)
+                topPadding = context.dp2Px(20)
+
+                linearLayout {
+                    gravity = Gravity.CENTER_VERTICAL
+
+                    progressBar {
+                        id = ID_PROGRESS
+                    }
 
                     textView {
                         id = ID_TITLE
@@ -118,29 +126,16 @@ class MainActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
                         text = config.title
                         textColor = Color.BLACK
                     }
-
-                    textView {
-                        id = ID_TEXT_VIEW
-                        textSize = 20f
-                    }
-
-                }.lparams(matchParent, wrapContent) {
-                    leftMargin = context.dp2Px(20)
-                    topMargin = context.dp2Px(60)
-                    centerHorizontally()
                 }
 
-
-                progressBar {
-                    id = ID_PROGRESS
-                }.lparams(wrapContent, wrapContent) {
-                    centerHorizontally()
-                    below(vl)
+                textView {
+                    id = ID_TEXT_VIEW
+                    textSize = 20f
                 }
-            }.lparams(matchParent, matchParent) {
+
+            }.lparams(matchParent, wrapContent) {
                 weight = 1.0f
             }
         }
-
     }
 }
