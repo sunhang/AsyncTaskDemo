@@ -13,38 +13,45 @@ class GoodsPresenter : BaseGoodsPresenter() {
 
     private val server = GoodsModel()
 
-    fun requestServer() = uiScope.launch {
-        val deferredIKEAGoods = server.getGoodsFromIKEAAsync()
-        val deferredCarrefourGoods = server.getGoodsFromCarrefourAsync()
+    override fun requestServer() {
+        uiScope.launch {
+            val deferredIKEAGoods = server.getGoodsFromIKEAAsync()
+            val deferredCarrefourGoods = server.getGoodsFromCarrefourAsync()
 
-        view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
-        view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
+            view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
+            view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
 
-        launch {
-            val goods = deferredIKEAGoods.await()
-            view.displayIKEAGoods(Resource(Resource.FINISH, goods))
+            launch {
+                val goods = deferredIKEAGoods.await()
+                view.displayIKEAGoods(Resource(Resource.FINISH, goods))
+            }
+
+            launch {
+                val goods = deferredCarrefourGoods.await()
+                view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
+            }
+
+            view.displayBetterGoods(
+                Resource(
+                    Resource.LOADING,
+                    "wait\n=====================\n===================="
+                )
+            )
+
+            val ikeaGoods = deferredIKEAGoods.await()
+            val carrefourGoods = deferredCarrefourGoods.await()
+
+            view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
+
+            val betterGoods = withContext(supervisorJob + newSingleThreadContext("foo")) {
+                selectBetterOne(ikeaGoods, carrefourGoods)
+            }
+
+            view.displayBetterGoods(Resource(Resource.FINISH, betterGoods))
         }
-
-        launch {
-            val goods = deferredCarrefourGoods.await()
-            view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
-        }
-
-        view.displayBetterGoods(Resource(Resource.LOADING, "wait\n=====================\n===================="))
-
-        val ikeaGoods = deferredIKEAGoods.await()
-        val carrefourGoods = deferredCarrefourGoods.await()
-
-        view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
-
-        val betterGoods = withContext(supervisorJob + newSingleThreadContext("foo")) {
-            selectBetterOne(ikeaGoods, carrefourGoods)
-        }
-
-        view.displayBetterGoods(Resource(Resource.FINISH, betterGoods))
     }
 
-    fun cancel() {
+    override fun cancel() {
         supervisorJob.cancel()
     }
 

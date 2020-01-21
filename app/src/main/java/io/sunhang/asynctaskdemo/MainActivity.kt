@@ -14,7 +14,7 @@ import io.sunhang.asynctaskdemo.model.Resource
 import org.jetbrains.anko.*
 
 
-class MainActivity : MvpActivity<GoodsView, GoodsPresenter>(),
+class MainActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
     GoodsView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
