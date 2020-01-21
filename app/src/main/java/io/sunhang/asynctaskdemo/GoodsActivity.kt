@@ -20,6 +20,12 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val title = intent?.extras?.get("async_impl_type") as? String
+        title?.let {
+            setTitle(it)
+        }
+
         ActivityUI().setContentView(this)
 
         presenter.requestServer()
