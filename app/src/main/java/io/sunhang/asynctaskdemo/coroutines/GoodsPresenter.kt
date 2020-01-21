@@ -1,25 +1,17 @@
 package io.sunhang.asynctaskdemo.coroutines
 
 import androidx.annotation.WorkerThread
-import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter
-import com.hannesdorfmann.mosby3.mvp.MvpView
-import io.sunhang.asynctaskdemo.GoodsView
+import io.sunhang.asynctaskdemo.BaseGoodsPresenter
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
 import kotlinx.coroutines.*
 import java.util.*
 
-class GoodsPresenter : MvpBasePresenter<GoodsView>() {
+class GoodsPresenter : BaseGoodsPresenter() {
     private val supervisorJob = SupervisorJob()
     private val uiScope = CoroutineScope(Dispatchers.Main + supervisorJob)
 
     private val server = GoodsModel()
-
-/*    private fun displayUI(viewFunc: (Resource) -> Unit, resource: Resource) {
-        ifViewAttached {
-            viewFunc.invoke(resource)
-        }
-    }*/
 
     fun requestServer() = uiScope.launch {
         val deferredIKEAGoods = server.getGoodsFromIKEAAsync()
@@ -30,37 +22,26 @@ class GoodsPresenter : MvpBasePresenter<GoodsView>() {
 
         launch {
             val goods = deferredIKEAGoods.await()
-            ifViewAttached {
-                it.displayIKEAGoods(Resource(Resource.FINISH, goods))
-            }
+            view.displayIKEAGoods(Resource(Resource.FINISH, goods))
         }
 
         launch {
             val goods = deferredCarrefourGoods.await()
-            ifViewAttached {
-                it.displayCarrefourGoods(Resource(Resource.FINISH, goods))
-            }
+            view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
         }
 
-        view.displayBetterGoods(Resource(Resource.LOADING, "wait..."))
+        view.displayBetterGoods(Resource(Resource.LOADING, "wait\n=====================\n===================="))
 
         val ikeaGoods = deferredIKEAGoods.await()
         val carrefourGoods = deferredCarrefourGoods.await()
 
-        ifViewAttached {
-            it.displayBetterGoods(
-                Resource(
-                    Resource.LOADING,
-                    "start compare which one is better"
-                )
-            )
-        }
+        view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
 
         val betterGoods = withContext(supervisorJob + newSingleThreadContext("foo")) {
             selectBetterOne(ikeaGoods, carrefourGoods)
         }
 
-        ifViewAttached { it.displayBetterGoods(Resource(Resource.FINISH, betterGoods)) }
+        view.displayBetterGoods(Resource(Resource.FINISH, betterGoods))
     }
 
     fun cancel() {
