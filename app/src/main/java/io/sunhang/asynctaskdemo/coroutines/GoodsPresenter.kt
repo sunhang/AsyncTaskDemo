@@ -28,7 +28,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
                 view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
             }
 
-            val strWaiting = "wait\n=====================\n===================="
+            val strWaiting = "wait\n=====================\n====================="
             view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
 
             val ikeaGoods = deferredIKEAGoods.await()

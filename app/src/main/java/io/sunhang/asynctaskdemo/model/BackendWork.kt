@@ -1,14 +1,9 @@
 package io.sunhang.asynctaskdemo.model
 
-import androidx.annotation.WorkerThread
-import io.sunhang.asynctaskdemo.model.Goods
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import java.util.*
 
 /**
- * 模拟请求服务器
+ * 模拟请求服务器，以及后台耗时操作
  */
 class BackendWork {
     /**

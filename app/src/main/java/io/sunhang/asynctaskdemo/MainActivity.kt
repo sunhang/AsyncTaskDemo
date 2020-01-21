@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.hannesdorfmann.mosby3.mvp.MvpActivity
-import io.sunhang.asynctaskdemo.coroutines.GoodsPresenter
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
+import io.sunhang.asynctaskdemo.rx.GoodsPresenter
 import org.jetbrains.anko.*
 
 
