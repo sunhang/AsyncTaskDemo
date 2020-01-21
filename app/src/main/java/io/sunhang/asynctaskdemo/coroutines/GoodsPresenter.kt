@@ -28,19 +28,16 @@ class GoodsPresenter : BaseGoodsPresenter() {
                 view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
             }
 
-            view.displayBetterGoods(
-                Resource(
-                    Resource.LOADING,
-                    "wait\n=====================\n===================="
-                )
-            )
+            val strWaiting = "wait\n=====================\n===================="
+            view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
 
             val ikeaGoods = deferredIKEAGoods.await()
             val carrefourGoods = deferredCarrefourGoods.await()
 
             view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
 
-            val betterGoods = goodsModel.selectBetterOneAsync(supervisorJob, ikeaGoods, carrefourGoods)
+            val betterGoods =
+                goodsModel.selectBetterOneAsync(supervisorJob, ikeaGoods, carrefourGoods)
             view.displayBetterGoods(Resource(Resource.FINISH, betterGoods))
         }
     }
