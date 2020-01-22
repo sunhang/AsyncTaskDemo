@@ -1,6 +1,5 @@
 package io.sunhang.asynctaskdemo.rx
 
-import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -15,6 +14,10 @@ class GoodsPresenter : BaseGoodsPresenter() {
     private val goodsModel = GoodsModel()
     private val compositeDisposable = CompositeDisposable()
 
+    /**
+     * What's different in 2.0 > Error handling
+     * <https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0#error-handling>
+     */
     init {
         RxJavaPlugins.setErrorHandler { e: Throwable? ->
             if (e is InterruptedException) { // fine, some blocking code was interrupted by a dispose call
