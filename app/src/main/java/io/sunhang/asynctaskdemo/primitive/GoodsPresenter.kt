@@ -6,7 +6,7 @@ import io.sunhang.asynctaskdemo.BaseGoodsPresenter
 import io.sunhang.asynctaskdemo.model.BackendWork
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
-import sunhang.openlibrary.guardLet
+import sunhang.openlibrary.safeLet
 
 class GoodsPresenter : BaseGoodsPresenter() {
     private val server = BackendWork()
@@ -32,21 +32,23 @@ class GoodsPresenter : BaseGoodsPresenter() {
         var ikeaGoods: Goods? = null
         var carrefourGoods: Goods? = null
 
+        val uiTask = { action: () -> Unit ->
+            mainThreadHandler.post {
+                if (canceled) return@post
+
+                action()
+                safeLet(ikeaGoods, carrefourGoods) { it0, it1 ->
+                    betterGoods(it0, it1)
+                }
+            }
+        }
+
         threads += Thread {
             try {
                 val goods = server.getGoodsFromIKEA()
-
-                mainThreadHandler.post {
-                    if (canceled) return@post
-
+                uiTask {
                     ikeaGoods = goods
                     view.displayIKEAGoods(Resource(Resource.FINISH, goods))
-
-                    val (ikeaGoods, carrefourGoods) = guardLet(
-                        ikeaGoods,
-                        carrefourGoods
-                    ) { return@post }
-                    betterGoods(ikeaGoods, carrefourGoods)
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
@@ -61,17 +63,9 @@ class GoodsPresenter : BaseGoodsPresenter() {
         threads += Thread {
             try {
                 val goods = server.getGoodsFromCarrefour()
-                mainThreadHandler.post {
-                    if (canceled) return@post
-
+                uiTask {
                     carrefourGoods = goods
                     view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
-
-                    val (ikeaGoods, carrefourGoods) = guardLet(
-                        ikeaGoods,
-                        carrefourGoods
-                    ) { return@post }
-                    betterGoods(ikeaGoods, carrefourGoods)
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
