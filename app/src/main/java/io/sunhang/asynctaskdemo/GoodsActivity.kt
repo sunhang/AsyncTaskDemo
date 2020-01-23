@@ -44,14 +44,17 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
     }
 
     override fun createPresenter(): BaseGoodsPresenter {
-        return when (intent?.extras?.get("async_impl_type")) {
-            "coroutines" -> io.sunhang.asynctaskdemo.coroutines.GoodsPresenter()
-            "rxjava" -> io.sunhang.asynctaskdemo.rx.GoodsPresenter()
-            "primitive" -> io.sunhang.asynctaskdemo.primitive.GoodsPresenter()
-            "thread-pool" -> io.sunhang.asynctaskdemo.threadpool.GoodsPresenter()
-            "complete-future" -> io.sunhang.asynctaskdemo.completefuture.GoodsPresenter()
-            else -> throw RuntimeException("null")
+        val value = intent?.extras?.get("async_impl_type") ?: throw RuntimeException("no value")
+
+        val packageName = when(value) {
+            "rxjava" -> "rx"
+            "thread-pool" -> "threadpool"
+            "complete-future" -> "completefuture"
+            else -> value
         }
+
+        val cls = Class.forName("io.sunhang.asynctaskdemo.$packageName.GoodsPresenter")
+        return cls.newInstance() as BaseGoodsPresenter
     }
 
     override fun onDestroy() {
