@@ -49,6 +49,7 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
             "rxjava" -> io.sunhang.asynctaskdemo.rx.GoodsPresenter()
             "primitive" -> io.sunhang.asynctaskdemo.primitive.GoodsPresenter()
             "thread-pool" -> io.sunhang.asynctaskdemo.threadpool.GoodsPresenter()
+            "complete-future" -> io.sunhang.asynctaskdemo.completefuture.GoodsPresenter()
             else -> throw RuntimeException("null")
         }
     }

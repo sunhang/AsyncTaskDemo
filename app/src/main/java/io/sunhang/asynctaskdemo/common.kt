@@ -14,3 +14,11 @@ operator fun CompositeDisposable.plusAssign(disposable: Disposable) {
 }
 
 fun threadInfo() = "[thread: ${Thread.currentThread().toString()}]"
+
+fun Any?.isNull() = (this == null)
+
+fun <T> T?.selfIfNull(instantiate: ()->T): T {
+    return if (this.isNull()) {
+        instantiate()
+    } else this!!
+}

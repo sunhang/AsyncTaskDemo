@@ -1,34 +1,19 @@
 package io.sunhang.asynctaskdemo
 
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import org.jetbrains.anko._LinearLayout
-import org.jetbrains.anko.button
+import kotlinx.coroutines.CoroutineScope
+import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk25.coroutines.onClick
-import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.verticalLayout
+
+typealias HandlerClick = suspend CoroutineScope.(v: android.view.View?) -> Unit
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-        class Config {
-            lateinit var category: String
-        }
-        fun _LinearLayout.myButton(init: Config.()->Unit) {
-            val config = Config().apply(init)
-
-            button {
-                text = config.category
-                isAllCaps = false
-                onClick {
-                    startActivity<GoodsActivity>("async_impl_type" to config.category)
-                }
-            }
-        }
 
         verticalLayout {
             gravity = Gravity.CENTER
@@ -51,7 +36,36 @@ class MainActivity : AppCompatActivity() {
 
             myButton {
                 category = "complete-future"
+                onClick {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        startActivity<GoodsActivity>("async_impl_type" to "complete-future")
+                    } else {
+                        toast("not supported")
+                    }
+                }
             }
         }
     }
+
+    fun _LinearLayout.myButton(init: Config.() -> Unit) {
+        val config = Config().apply(init)
+
+        val clickHandler: HandlerClick = config.onClick.selfIfNull {
+            {
+                startActivity<GoodsActivity>("async_impl_type" to config.category)
+            }
+        }
+
+        button {
+            text = config.category
+            isAllCaps = false
+            onClick(handler = clickHandler)
+        }
+    }
+
+    class Config {
+        lateinit var category: String
+        var onClick: HandlerClick? = null
+    }
+
 }
