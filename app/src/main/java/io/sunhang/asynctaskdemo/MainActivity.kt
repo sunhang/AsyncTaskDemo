@@ -2,7 +2,9 @@ package io.sunhang.asynctaskdemo
 
 import android.os.Bundle
 import android.view.Gravity
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.button
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.startActivity
@@ -14,6 +16,14 @@ class MainActivity : AppCompatActivity() {
 
         verticalLayout {
             gravity = Gravity.CENTER
+
+            button {
+                text = "primitive"
+                isAllCaps = false
+                onClick {
+                    startActivity<GoodsActivity>("async_impl_type" to "primitive")
+                }
+            }
 
             button {
                 text = "coroutines"

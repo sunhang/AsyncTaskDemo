@@ -47,6 +47,7 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
         return when (intent?.extras?.get("async_impl_type")) {
             "coroutines" -> io.sunhang.asynctaskdemo.coroutines.GoodsPresenter()
             "rxjava" -> io.sunhang.asynctaskdemo.rx.GoodsPresenter()
+            "primitive" -> io.sunhang.asynctaskdemo.primitive.GoodsPresenter()
             else -> throw RuntimeException("null")
         }
     }
