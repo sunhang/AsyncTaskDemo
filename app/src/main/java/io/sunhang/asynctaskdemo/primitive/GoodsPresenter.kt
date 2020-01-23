@@ -13,6 +13,16 @@ class GoodsPresenter : BaseGoodsPresenter() {
     private val mainThreadHandler = Handler(Looper.getMainLooper())
     private var canceled = false
 
+    private val threads = mutableSetOf<Thread>()
+
+    private operator fun <T> MutableSet<T>.plusAssign(t: T) {
+        add(t)
+    }
+
+    private operator fun <T> MutableSet<T>.minusAssign(t: T) {
+        remove(t)
+    }
+
     override fun requestServer() {
         view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
         view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
@@ -22,7 +32,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
         var ikeaGoods: Goods? = null
         var carrefourGoods: Goods? = null
 
-        Thread {
+        threads += Thread {
             try {
                 val goods = server.getGoodsFromIKEA()
 
@@ -40,10 +50,15 @@ class GoodsPresenter : BaseGoodsPresenter() {
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
+            } finally {
+                val currentThread = Thread.currentThread()
+                mainThreadHandler.post {
+                    threads -= currentThread
+                }
             }
-        }.start()
+        }.apply { start() }
 
-        Thread {
+        threads += Thread {
             try {
                 val goods = server.getGoodsFromCarrefour()
                 mainThreadHandler.post {
@@ -60,14 +75,19 @@ class GoodsPresenter : BaseGoodsPresenter() {
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
+            } finally {
+                val currentThread = Thread.currentThread()
+                mainThreadHandler.post {
+                    threads -= currentThread
+                }
             }
-        }.start()
+        }.apply { start() }
     }
 
     private fun betterGoods(ikeaGoods: Goods, carrefourGoods: Goods) {
         view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
 
-        Thread {
+        threads += Thread {
             try {
                 val goods = server.selectBetterOne(ikeaGoods, carrefourGoods)
 
@@ -78,12 +98,18 @@ class GoodsPresenter : BaseGoodsPresenter() {
                 }
             } catch (e: InterruptedException) {
                 e.printStackTrace()
+            } finally {
+                val currentThread = Thread.currentThread()
+                mainThreadHandler.post {
+                    threads -= currentThread
+                }
             }
-        }.start()
+        }.apply { start() }
     }
 
     override fun cancel() {
         canceled = true
+        threads.forEach { it.interrupt() }
     }
 
 }
