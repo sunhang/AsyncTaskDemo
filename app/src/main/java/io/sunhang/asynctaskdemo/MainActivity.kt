@@ -45,14 +45,13 @@ class MainActivity : AppCompatActivity() {
                 category = "rxjava"
             }
 
-            /*
             myButton {
                 category = "thread-pool"
             }
 
             myButton {
                 category = "complete-future"
-            }*/
+            }
         }
     }
 }
