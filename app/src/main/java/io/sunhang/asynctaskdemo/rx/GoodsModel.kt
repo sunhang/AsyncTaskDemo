@@ -7,14 +7,14 @@ import io.sunhang.asynctaskdemo.model.Goods
 
 
 class GoodsModel {
-    private val server = BackendWork()
+    private val backendWork = BackendWork()
 
     /**
      * 从宜家买桌子
      */
     fun getGoodsFromIKEAAsync(): Observable<Goods> {
         return Observable.fromCallable {
-            server.getGoodsFromIKEA()
+            backendWork.getGoodsFromIKEA()
         }.subscribeOn(Schedulers.io())
     }
 
@@ -23,7 +23,7 @@ class GoodsModel {
      */
     fun getGoodsFromCarrefourAsync(): Observable<Goods>{
         return Observable.fromCallable {
-            server.getGoodsFromCarrefour()
+            backendWork.getGoodsFromCarrefour()
         }.subscribeOn(Schedulers.io())
     }
 
@@ -35,7 +35,7 @@ class GoodsModel {
         carrefourGoods: Goods
     ): Observable<Goods> {
         return Observable.fromCallable {
-            server.selectBetterOne(ikeaGoods, carrefourGoods)
+            backendWork.selectBetterOne(ikeaGoods, carrefourGoods)
         }.subscribeOn(Schedulers.computation())
     }
 }

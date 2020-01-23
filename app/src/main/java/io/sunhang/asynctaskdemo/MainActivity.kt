@@ -14,32 +14,45 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+        class Config {
+            lateinit var category: String
+        }
+        fun _LinearLayout.myButton(init: Config.()->Unit) {
+            val config = Config().apply(init)
+
+            button {
+                text = config.category
+                isAllCaps = false
+                onClick {
+                    startActivity<GoodsActivity>("async_impl_type" to config.category)
+                }
+            }
+        }
+
         verticalLayout {
             gravity = Gravity.CENTER
 
-            button {
-                text = "primitive"
-                isAllCaps = false
-                onClick {
-                    startActivity<GoodsActivity>("async_impl_type" to "primitive")
-                }
+            myButton {
+                category = "primitive"
             }
 
-            button {
-                text = "coroutines"
-                isAllCaps = false
-                onClick {
-                    startActivity<GoodsActivity>("async_impl_type" to "coroutines")
-                }
+            myButton {
+                category = "coroutines"
             }
 
-            button {
-                text = "rxjava"
-                isAllCaps = false
-                onClick {
-                    startActivity<GoodsActivity>("async_impl_type" to "rxjava")
-                }
+            myButton {
+                category = "rxjava"
             }
+
+            /*
+            myButton {
+                category = "thread-pool"
+            }
+
+            myButton {
+                category = "complete-future"
+            }*/
         }
     }
 }

@@ -6,20 +6,20 @@ import kotlinx.coroutines.*
 
 
 class GoodsModel {
-    private val server = BackendWork()
+    private val backendWork = BackendWork()
 
     /**
      * 从宜家买桌子
      */
     fun getGoodsFromIKEAAsync() = CoroutineScope(Dispatchers.IO).async {
-        server.getGoodsFromIKEA()
+        backendWork.getGoodsFromIKEA()
     }
 
     /**
      * 从家乐福买桌子
      */
     fun getGoodsFromCarrefourAsync() = CoroutineScope(Dispatchers.IO).async {
-        server.getGoodsFromCarrefour()
+        backendWork.getGoodsFromCarrefour()
     }
 
     /**
@@ -31,7 +31,7 @@ class GoodsModel {
         carrefourGoods: Goods
     ): Deferred<Goods> {
         return CoroutineScope(supervisorJob + newSingleThreadContext("foo")).async {
-            server.selectBetterOne(ikeaGoods, carrefourGoods)
+            backendWork.selectBetterOne(ikeaGoods, carrefourGoods)
         }
     }
 }

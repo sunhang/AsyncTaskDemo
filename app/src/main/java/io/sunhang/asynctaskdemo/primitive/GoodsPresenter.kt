@@ -9,19 +9,11 @@ import io.sunhang.asynctaskdemo.model.Resource
 import sunhang.openlibrary.safeLet
 
 class GoodsPresenter : BaseGoodsPresenter() {
-    private val server = BackendWork()
+    private val backendWork = BackendWork()
     private val mainThreadHandler = Handler(Looper.getMainLooper())
     private var canceled = false
 
     private val threads = mutableSetOf<Thread>()
-
-    private operator fun <T> MutableSet<T>.plusAssign(t: T) {
-        add(t)
-    }
-
-    private operator fun <T> MutableSet<T>.minusAssign(t: T) {
-        remove(t)
-    }
 
     override fun requestServer() {
         view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
@@ -45,7 +37,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
 
         threads += Thread {
             try {
-                val goods = server.getGoodsFromIKEA()
+                val goods = backendWork.getGoodsFromIKEA()
                 uiTask {
                     ikeaGoods = goods
                     view.displayIKEAGoods(Resource(Resource.FINISH, goods))
@@ -62,7 +54,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
 
         threads += Thread {
             try {
-                val goods = server.getGoodsFromCarrefour()
+                val goods = backendWork.getGoodsFromCarrefour()
                 uiTask {
                     carrefourGoods = goods
                     view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
@@ -83,7 +75,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
 
         threads += Thread {
             try {
-                val goods = server.selectBetterOne(ikeaGoods, carrefourGoods)
+                val goods = backendWork.selectBetterOne(ikeaGoods, carrefourGoods)
 
                 mainThreadHandler.post {
                     if (canceled) return@post
