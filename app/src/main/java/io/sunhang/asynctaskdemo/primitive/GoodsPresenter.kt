@@ -16,10 +16,9 @@ class GoodsPresenter : BaseGoodsPresenter() {
     private val threads = mutableSetOf<Thread>()
 
     override fun requestServer() {
-        view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
-        view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
-        val strWaiting = "wait\n=====================\n====================="
-        view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
+        view.displayIKEAGoods(Resource(Resource.LOADING))
+        view.displayCarrefourGoods(Resource(Resource.LOADING))
+        view.displayBetterGoods(Resource(Resource.WAITING))
 
         var ikeaGoods: Goods? = null
         var carrefourGoods: Goods? = null
@@ -71,7 +70,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
     }
 
     private fun betterGoods(ikeaGoods: Goods, carrefourGoods: Goods) {
-        view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
+        view.displayBetterGoods(Resource(Resource.LOADING))
 
         threads += Thread {
             try {

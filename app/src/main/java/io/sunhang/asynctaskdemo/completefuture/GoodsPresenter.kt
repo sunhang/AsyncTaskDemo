@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import io.sunhang.asynctaskdemo.BaseGoodsPresenter
+import io.sunhang.asynctaskdemo.R
 import io.sunhang.asynctaskdemo.model.BackendWork
 import io.sunhang.asynctaskdemo.model.Goods
 import io.sunhang.asynctaskdemo.model.Resource
@@ -25,10 +26,9 @@ class GoodsPresenter : BaseGoodsPresenter() {
     }
 
     override fun requestServer() {
-        view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
-        view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
-        val strWaiting = "wait\n=====================\n====================="
-        view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
+        view.displayIKEAGoods(Resource(Resource.LOADING))
+        view.displayCarrefourGoods(Resource(Resource.LOADING))
+        view.displayBetterGoods(Resource(Resource.WAITING))
 
 
         val ikeaFuture = CompletableFuture.supplyAsync(Supplier {
@@ -54,8 +54,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
         futures += ikeaFuture.thenCombineAsync(
             carrefourFuture,
             BiFunction<Goods, Goods, Pair<Goods, Goods>> { g0, g1 ->
-                val str = "start compare which one is better"
-                view.displayBetterGoods(Resource(Resource.LOADING, str))
+                view.displayBetterGoods(Resource(Resource.LOADING))
                 Pair(g0, g1)
             },
             mainThreadExecutor

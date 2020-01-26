@@ -28,10 +28,9 @@ class GoodsPresenter : BaseGoodsPresenter() {
     }
 
     override fun requestServer() {
-        view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
-        view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
-        val strWaiting = "wait\n=====================\n====================="
-        view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
+        view.displayIKEAGoods(Resource(Resource.LOADING))
+        view.displayCarrefourGoods(Resource(Resource.LOADING))
+        view.displayBetterGoods(Resource(Resource.WAITING))
 
         val ikeaObservable = goodsModel.getGoodsFromIKEAAsync()
             .observeOn(AndroidSchedulers.mainThread())
@@ -49,8 +48,7 @@ class GoodsPresenter : BaseGoodsPresenter() {
             ikeaObservable,
             carrefourObservable,
             BiFunction { t1: Goods, t2: Goods ->
-                val str = "start compare which one is better"
-                view.displayBetterGoods(Resource(Resource.LOADING, str))
+                view.displayBetterGoods(Resource(Resource.LOADING))
                 Pair(t1, t2)
             }).flatMap {
             goodsModel.selectBetterOneAsync(it.first, it.second)

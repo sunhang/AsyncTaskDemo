@@ -22,10 +22,9 @@ class GoodsPresenter : BaseGoodsPresenter() {
     }
 
     override fun requestServer() {
-        view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
-        view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
-        val strWaiting = "wait\n=====================\n====================="
-        view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
+        view.displayIKEAGoods(Resource(Resource.LOADING))
+        view.displayCarrefourGoods(Resource(Resource.LOADING))
+        view.displayBetterGoods(Resource(Resource.WAITING))
 
         val ikeaFuture = backendExecutor.submit<Goods> {
             backendWork.getGoodsFromIKEA().alsoPostToUI {

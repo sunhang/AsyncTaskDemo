@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">AsyncTaskDemo</string>
+    <string name="start_request_ikea_goods">获取宜家的桌子...</string>
+    <string name="start_request_carrefour_goods">获取家乐福桌子的信息...</string>
+    <string name="waiting">等待前两个任务完成\n=====================\n=====================</string>
+    <string name="start_compare_which_one_is_better">比较哪家桌子更好...</string>
+    <string name="goods_from_shop_iKEA">宜家</string>
+    <string name="goods_from_shop_carrefour">家乐福</string>
+    <string name="choose_better_goods">比较</string>
 </resources>

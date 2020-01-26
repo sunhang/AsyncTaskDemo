@@ -15,8 +15,8 @@ class GoodsPresenter : BaseGoodsPresenter() {
             val deferredIKEAGoods = goodsModel.getGoodsFromIKEAAsync()
             val deferredCarrefourGoods = goodsModel.getGoodsFromCarrefourAsync()
 
-            view.displayIKEAGoods(Resource(Resource.LOADING, "start request IKEA goods"))
-            view.displayCarrefourGoods(Resource(Resource.LOADING, "start request carrefour goods"))
+            view.displayIKEAGoods(Resource(Resource.LOADING))
+            view.displayCarrefourGoods(Resource(Resource.LOADING))
 
             launch {
                 val goods = deferredIKEAGoods.await()
@@ -28,13 +28,12 @@ class GoodsPresenter : BaseGoodsPresenter() {
                 view.displayCarrefourGoods(Resource(Resource.FINISH, goods))
             }
 
-            val strWaiting = "wait\n=====================\n====================="
-            view.displayBetterGoods(Resource(Resource.LOADING, strWaiting))
+            view.displayBetterGoods(Resource(Resource.WAITING))
 
             val ikeaGoods = deferredIKEAGoods.await()
             val carrefourGoods = deferredCarrefourGoods.await()
 
-            view.displayBetterGoods(Resource(Resource.LOADING, "start compare which one is better"))
+            view.displayBetterGoods(Resource(Resource.LOADING))
 
             val betterGoods = goodsModel.selectBetterOneAsync(supervisorJob, ikeaGoods, carrefourGoods).await()
             view.displayBetterGoods(Resource(Resource.FINISH, betterGoods))

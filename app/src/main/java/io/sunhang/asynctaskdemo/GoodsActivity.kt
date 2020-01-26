@@ -32,15 +32,25 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
     }
 
     override fun displayIKEAGoods(resource: Resource) {
-        displayGoods(ActivityUI.ID_LAYOUT_0, resource)
+        when (resource.status) {
+            Resource.LOADING -> textView(ActivityUI.ID_LAYOUT_0).text = getString(R.string.start_request_ikea_goods)
+            Resource.FINISH -> displayGoods(ActivityUI.ID_LAYOUT_0, resource.any as Goods)
+        }
     }
 
     override fun displayCarrefourGoods(resource: Resource) {
-        displayGoods(ActivityUI.ID_LAYOUT_1, resource)
+        when (resource.status) {
+            Resource.LOADING -> textView(ActivityUI.ID_LAYOUT_1).text = getString(R.string.start_request_carrefour_goods)
+            Resource.FINISH -> displayGoods(ActivityUI.ID_LAYOUT_1, resource.any as Goods)
+        }
     }
 
     override fun displayBetterGoods(resource: Resource) {
-        displayGoods(ActivityUI.ID_LAYOUT_2, resource)
+        when (resource.status) {
+            Resource.WAITING -> textView(ActivityUI.ID_LAYOUT_2).text = getString(R.string.waiting)
+            Resource.LOADING -> textView(ActivityUI.ID_LAYOUT_2).text = getString(R.string.start_compare_which_one_is_better)
+            Resource.FINISH -> displayGoods(ActivityUI.ID_LAYOUT_2, resource.any as Goods)
+        }
     }
 
     override fun createPresenter(): BaseGoodsPresenter {
@@ -62,17 +72,10 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
         presenter.cancel()
     }
 
-    private fun displayGoods(layoutId: Int, resource: Resource) {
-        textView(layoutId).text = when (resource.status) {
-            Resource.LOADING -> resource.any as String
-            Resource.FINISH -> (resource.any as Goods).toString()
-            else -> ""
-        }
-
-        if (resource.status == Resource.FINISH) {
-            progressBar(layoutId).visibility = View.GONE
-            findOptional<ViewGroup>(layoutId)!!.background = ColorDrawable(Color.YELLOW)
-        }
+    private fun displayGoods(layoutId: Int, goods: Goods) {
+        textView(layoutId).text = goods.toString()
+        progressBar(layoutId).visibility = View.GONE
+        findOptional<ViewGroup>(layoutId)!!.background = ColorDrawable(Color.YELLOW)
     }
 
     private fun textView(layoutId: Int): TextView {
@@ -100,17 +103,17 @@ class GoodsActivity : MvpActivity<GoodsView, BaseGoodsPresenter>(),
             verticalLayout {
                 panel {
                     id = ID_LAYOUT_0
-                    title = "Goods from Shop IKEA:"
+                    title = context.getString(R.string.goods_from_shop_iKEA)
                 }
 
                 panel {
                     id = ID_LAYOUT_1
-                    title = "Goods from Shop Carrefour:"
+                    title = context.getString(R.string.goods_from_shop_carrefour)
                 }
 
                 panel {
                     id = ID_LAYOUT_2
-                    title = "Choose better goods:"
+                    title = context.getString(R.string.choose_better_goods)
                 }
             }
         }.view
