@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     fun _LinearLayout.myButton(init: Config.() -> Unit) {
         val config = Config().apply(init)
 
-        val clickHandler: HandlerClick = config.onClick.selfIfNull {
+        val clickHandler: HandlerClick = config.onClick.selfOrDefault {
             {
                 startActivity<GoodsActivity>("async_impl_type" to config.category)
             }

@@ -17,7 +17,10 @@ fun threadInfo() = "[thread: ${Thread.currentThread().toString()}]"
 
 fun Any?.isNull() = (this == null)
 
-fun <T> T?.selfIfNull(instantiate: ()->T): T {
+/**
+ * 若不为null，则强制转换自己为非空并返回，否则用instantiate构造一默认值
+ */
+fun <T> T?.selfOrDefault(instantiate: ()->T): T {
     return if (this.isNull()) {
         instantiate()
     } else this!!
