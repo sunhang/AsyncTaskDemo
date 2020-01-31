@@ -64,6 +64,36 @@ android中，对异步编程进行对比，进而选择最合适的实现方式
     }
 ```
 
+```kotlin
+    private fun betterGoods(ikeaGoods: Goods, carrefourGoods: Goods) {
+        view.displayBetterGoods(Resource(Resource.LOADING))
+
+        threads += Thread {
+            try {
+                val goods = backendWork.selectBetterOne(ikeaGoods, carrefourGoods)
+
+                mainThreadHandler.post {
+                    if (canceled) return@post
+
+                    view.displayBetterGoods(Resource(Resource.FINISH, goods))
+                }
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            } finally {
+                val currentThread = Thread.currentThread()
+                mainThreadHandler.post {
+                    threads -= currentThread
+                }
+            }
+        }.apply { start() }
+    }
+
+    override fun cancel() {
+        canceled = true
+        threads.forEach { it.interrupt() }
+    }
+```
+
 # thread pool
 ```kotlin
     override fun requestServer() {
@@ -102,6 +132,21 @@ android中，对异步编程进行对比，进而选择最合适的实现方式
         }
     }
 ```
+
+```kotlin
+    private fun Goods.alsoPostToUI(task: (Goods) -> Unit): Goods {
+        mainHandler.post {
+            task(this)
+        }
+
+        return this
+    }
+    
+    override fun cancel() {
+        backendExecutor.shutdownNow()
+    }
+```
+
 ## future
 ## shutdown和shutdownNow
 ## 异常处理
@@ -148,6 +193,15 @@ android中，对异步编程进行对比，进而选择最合适的实现方式
         }, mainThreadExecutor)
     }
 ```
+
+```kotlin
+    override fun cancel() {
+        futures.forEach {
+            it.cancel(true)
+        }
+    }
+```
+
 ## supply
 ## apply
 ## accept
@@ -185,6 +239,13 @@ android中，对异步编程进行对比，进而选择最合适的实现方式
             }
     }
 ```
+
+```kotlin
+    override fun cancel() {
+        compositeDisposable.dispose()
+    }
+```
+
 ## 操作符
 ## 异常处理
 
@@ -220,6 +281,13 @@ android中，对异步编程进行对比，进而选择最合适的实现方式
         }
     }
 ```
+
+```kotlin
+    override fun cancel() {
+        supervisorJob.cancel()
+    }
+```
+
 ## 协程上下文
 ## runblock
 ## launch
